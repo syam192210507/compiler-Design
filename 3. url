@@ -1,0 +1,18 @@
+%{
+%}
+
+%%
+
+[https://]+[a-z.]+(.com|.in|.gov|.edu|.net) {printf("\nURL is Valid\n");}
+.+ {printf("\nURL is  Invalid\n");}
+
+%%
+int yywrap(void) {}
+
+int main()
+{
+    printf("\nEnter URL : ");
+     yylex();
+    printf("\n");
+    return 0;
+}
