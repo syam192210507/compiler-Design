@@ -1,0 +1,31 @@
+%{
+#include <stdio.h>
+int ln = 0;
+%}
+%%
+.*{ ln++; printf("%d: %s\n", ln, yytext);}
+%%
+int yywrap() { return 1;}
+int main(){
+    yyin = fopen("simple.txt", "r");
+    yyout = fopen("out.txt", "w");
+    yylex();
+    fclose(yyin);
+    fclose(yyout);
+    return 0;
+}
+
+simple.txt:
+%{
+int ln=0;
+%}
+%%
+.* {ln++; fprintf(yyout,"\n%d:%s",ln,yytext);}
+%%
+int yywrap(){}
+int main()
+{
+yyin=fopen("simple1.txt","r");
+yyout=fopen("outnew.txt","w");
+yylex();
+}
