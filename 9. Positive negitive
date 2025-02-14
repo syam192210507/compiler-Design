@@ -1,0 +1,20 @@
+%{
+    #include <stdio.h>
+    int positive = 0, negative = 0;
+%}
+
+%%
+[0-9]+   { positive++; }     // Match positive numbers (excluding zero)
+-[0-9]+  { negative++; }     // Match negative numbers
+.        ;                   // Ignore other characters
+%%
+
+int main() {
+    printf("Enter numbers (Ctrl+D to stop on Linux/macOS, Ctrl+Z on Windows):\n");
+    yylex();
+    printf("Positive Numbers: %d\n", positive);
+    printf("Negative Numbers: %d\n", negative);
+    return 0;
+}
+
+int yywrap() { return 1; }
