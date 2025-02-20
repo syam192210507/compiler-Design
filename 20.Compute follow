@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 100
+#define MAX_PRODUCTIONS 10
+#define MAX_SYMBOLS 10
+
+char productions[MAX_PRODUCTIONS][MAX_SYMBOLS];
+char first[MAX_SYMBOLS][MAX_SYMBOLS];
+int numProductions;
+char nonTerminals[MAX_SYMBOLS];
+int numNonTerminals;
+
+// Function to check if a character is in a string
+int isIn(char *str, char c) {
+    for (int i = 0; i < strlen(str); i++) {
+        if (str[i] == c) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Function to compute the First set for a given non-terminal
+void computeFirst(char nonTerminal) {
+    for (int i = 0; i < numProductions; i++) {
+        if (productions[i][0] == nonTerminal) {
+            // Check the production
+            for (int j = 3; j < strlen(productions[i]); j++) { // Start after "A->"
+                char symbol = productions[i][j];
+                if (symbol >= 'a' && symbol <= 'z') { // Terminal
+                    if (!isIn(first[nonTerminal - 'A'], symbol)) {
+                        strncat(first[nonTerminal - 'A'], &symbol, 1);
+                    }
+                    break; // Stop after the first terminal
+                } else if (symbol >= 'A' && symbol <= 'Z') { // Non-terminal
+                    if (!isIn(first[nonTerminal - 'A'], symbol)) {
+                        strncat(first[nonTerminal - 'A'], &symbol, 1);
+                    }
+                    // If the non-terminal can derive epsilon, continue
+                    if (!isIn(first[symbol - 'A'], 'e')) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Function to compute First sets for all non-terminals
+void computeAllFirst() {
+    for (int i = 0; i < numNonTerminals; i++) {
+        computeFirst(nonTerminals[i]);
+    }
+}
+
+int main() {
+    printf("Enter the number of productions: ");
+    scanf("%d", &numProductions);
+    getchar(); // Consume newline
+
+    printf("Enter the productions (e.g., A->aB | A->b | B->c):\n");
+    for (int i = 0; i < numProductions; i++) {
+        fgets(productions[i], MAX_SYMBOLS, stdin);
+        productions[i][strcspn(productions[i], "\n")] = 0; // Remove newline
+    }
+
+    // Extract non-terminals
+    for (int i = 0; i < numProductions; i++) {
+        if (!isIn(nonTerminals, productions[i][0])) {
+            nonTerminals[numNonTerminals++] = productions[i][0];
+        }
+    }
+
+    // Initialize First sets
+    for (int i = 0; i < numNonTerminals; i++) {
+        first[nonTerminals[i] - 'A'][0] = '\0'; // Initialize to empty string
+    }
+
+    // Compute First sets
+    computeAllFirst();
+
+    // Print First sets
+    printf("\nFirst Sets:\n");
+    for (int i = 0; i < numNonTerminals; i++) {
+        printf("First(%c) = { ", nonTerminals[i]);
+        for (int j = 0; j < strlen(first[nonTerminals[i] - 'A']); j++) {
+            printf("%c ", first[nonTerminals[i] - 'A'][j]);
+        }
+        printf("}\n");
+    }
+
+    return 0;
+}
