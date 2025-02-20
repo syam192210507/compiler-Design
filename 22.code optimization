@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_EXPR 100
+
+typedef struct {
+    char expr[50];  // Stores the expression (e.g., a + b)
+    char tempVar[5]; // Stores the temporary variable (e.g., t1, t2)
+} Expression;
+
+Expression expressions[MAX_EXPR];  
+int exprCount = 0;
+
+// Function to check if an expression already exists
+int findCommonSubexpression(char *expr) {
+    for (int i = 0; i < exprCount; i++) {
+        if (strcmp(expressions[i].expr, expr) == 0) {
+            return i; // Found duplicate
+        }
+    }
+    return -1; // Not found
+}
+
+void optimizeCode(char input[][50], int n) {
+    int tempCount = 1;  // Counter for temp variables (t1, t2, ...)
+    
+    printf("\nOptimized Code:\n");
+    for (int i = 0; i < n; i++) {
+        char var[5], op1[10], op[5], op2[10], expr[50];
+        
+        // Parse the three-address code (e.g., x = a + b)
+        sscanf(input[i], "%s = %s %s %s", var, op1, op, op2);
+        sprintf(expr, "%s %s %s", op1, op, op2); // Create an expression
+
+        // Check if this expression is a common subexpression
+        int index = findCommonSubexpression(expr);
+        if (index != -1) {
+            printf("%s = %s\n", var, expressions[index].tempVar); // Reuse temp variable
+        } else {
+            // Store new expression
+            sprintf(expressions[exprCount].tempVar, "t%d", tempCount++);
+            strcpy(expressions[exprCount].expr, expr);
+            
+            // Print optimized code
+            printf("%s = %s\n", expressions[exprCount].tempVar, expr);
+            printf("%s = %s\n", var, expressions[exprCount].tempVar);
+
+            exprCount++;
+        }
+    }
+}
+
+int main() {
+    int n;
+    printf("Enter the number of expressions: ");
+    scanf("%d", &n);
+    getchar(); // Clear newline
+
+    char input[MAX_EXPR][50];
+
+    printf("Enter the expressions (e.g., x = a + b):\n");
+    for (int i = 0; i < n; i++) {
+        fgets(input[i], 50, stdin);
+        input[i][strcspn(input[i], "\n")] = 0; // Remove newline
+    }
+
+    optimizeCode(input, n);
+
+    return 0;
+}
